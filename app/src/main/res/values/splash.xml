@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Noted.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@drawable/baseline_sticky_note_2_24</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.Noted</item>
+    </style>
+</resources>

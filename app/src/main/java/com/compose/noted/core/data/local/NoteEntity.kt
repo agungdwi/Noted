@@ -1,4 +1,4 @@
-package com.compose.noted.data.local
+package com.compose.noted.core.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -15,8 +15,7 @@ data class NoteEntity(
     val title : String,
     val content : String,
     val color : Int,
-) {
-    companion object{
-        val noteColors = listOf(RetroRed, RetroBlue, RetroGreen, RetroOrange, RetroYellow)
-    }
-}
+    val timeStamp : Long,
+)
+
+class InvalidNoteException(message : String) : Exception(message)

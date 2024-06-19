@@ -1,4 +1,4 @@
-package com.compose.noted.data.local
+package com.compose.noted.core.data.local
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -12,10 +12,10 @@ interface NoteDao {
 
     @Query("SELECT * FROM NoteEntity")
     fun getNotes(): Flow<List<NoteEntity>>
-
+    @Query("SELECT * FROM NoteEntity WHERE id = :id")
+    suspend fun getNoteById(id: Int): NoteEntity?
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note : NoteEntity)
-
     @Delete
-    suspend fun  delete(note : NoteEntity)
+    suspend fun  deleteNote(note : NoteEntity)
 }

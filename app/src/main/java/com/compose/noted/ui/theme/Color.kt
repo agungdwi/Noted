@@ -2,13 +2,14 @@ package com.compose.noted.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val BlueDarkGrey80 = Color(0xFF8080A0)  // dark blue-gray variant of Purple80
+val BlueDarkGrey40 = Color(0xFF404860)  // darker shade of BlueDarkGrey80
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val BlueGrey80 = Color(0xFFB8CCEA)  // another shade of blue-gray for PurpleGrey80
+val BlueGrey40 = Color(0xFF8294B7)  // darker shade of BlueGrey80
+
+val LightBlueGrey80 = Color(0xFFE2E5F7)  // light blue-gray for Pink80
+val LightBlueGrey40 = Color(0xFFBEC4D3)  // darker shade of LightBlueGrey80
 
 val RetroRed = Color(0xFFA25752)
 val RetroOrange = Color(0xFFD06E3F)
