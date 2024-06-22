@@ -1,7 +1,9 @@
 package com.compose.noted.ui.presentation.addEdit
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
@@ -27,25 +29,27 @@ class AddEditViewModel @Inject constructor(
 
     private val _title = mutableStateOf(
         NoteTextFieldState(
-            hint = "Title"
+            hint = "Title..."
         )
     )
     val title: State<NoteTextFieldState> = _title
 
     private val _content = mutableStateOf(
         NoteTextFieldState(
-            hint = "Content"
+            hint = "Notes..."
         )
     )
     val content: State<NoteTextFieldState> = _content
 
-    private val _color = mutableIntStateOf(Utils.noteColors.first().toArgb())
+    private val _color = mutableIntStateOf(Utils.noteColors.random().toArgb())
     val color: State<Int> = _color
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var currentNoteId: Int? = null
+
+    private var timestamp = mutableLongStateOf(System.currentTimeMillis())
 
     init {
         savedStateHandle.get<Int>("noteId")?.let { noteId ->
@@ -61,6 +65,7 @@ class AddEditViewModel @Inject constructor(
                             text = it.content,
                             isHintVisible = false
                         )
+                        timestamp.longValue = it.timeStamp
                     }
                 }
             }
@@ -105,11 +110,12 @@ class AddEditViewModel @Inject constructor(
                             Note(
                                 title = title.value.text,
                                 content = content.value.text,
-                                timeStamp = System.currentTimeMillis(),
+                                timeStamp = timestamp.longValue,
                                 color = color.value,
                                 id = currentNoteId
                             )
                         )
+                        Log.d("test2", color.value.toString())
                         _eventFlow.emit(UiEvent.SaveNote)
                     } catch (e: InvalidNoteException) {
                         _eventFlow.emit(

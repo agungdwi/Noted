@@ -21,18 +21,4 @@ object DataMapper {
         timeStamp = model.timeStamp,
     )
 
-//    fun mapModelToEntities(model: List<Note>): List<NoteEntity> {
-//        val notes = ArrayList<NoteEntity>()
-//        model.map {
-//            val note = NoteEntity(
-//                id = it.id,
-//                title = it.title,
-//                content = it.content,
-//                color = it.color,
-//                timeStamp = it.timeStamp,
-//                )
-//            notes.add(note)
-//        }
-//        return notes
-//    }
 }

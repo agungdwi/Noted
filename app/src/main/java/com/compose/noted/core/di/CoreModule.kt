@@ -1,6 +1,5 @@
 package com.compose.noted.core.di
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.compose.noted.core.data.NoteRepository
