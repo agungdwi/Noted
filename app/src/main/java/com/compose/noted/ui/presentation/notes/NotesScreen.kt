@@ -128,7 +128,15 @@ fun NoteContent(
         Scaffold(
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = navigateToAdd, containerColor = MaterialTheme.colorScheme.primary
+                    onClick = navigateToAdd, containerColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .sharedBounds(
+                            rememberSharedContentState(key = "note/${-1}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                            resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                        )
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add Note")
                 }
