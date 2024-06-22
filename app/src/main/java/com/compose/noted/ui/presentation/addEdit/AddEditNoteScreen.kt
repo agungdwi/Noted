@@ -3,9 +3,6 @@ package com.compose.noted.ui.presentation.addEdit
 
 import android.util.Log
 import androidx.compose.animation.Animatable
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,15 +44,11 @@ import com.compose.noted.ui.presentation.addEdit.components.TrasnparentHintTextF
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AddEditNoteScreen(
     navController: NavController,
     noteColor : Int,
-    noteId: Int?,
-    viewModel: AddEditViewModel = hiltViewModel(),
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope
+    viewModel: AddEditViewModel = hiltViewModel()
 ){
     val titleState = viewModel.title.value
     val contentState = viewModel.content.value
@@ -95,117 +88,91 @@ fun AddEditNoteScreen(
 
     }
 
-    with(sharedTransitionScope){
-        Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        viewModel.onEvent(AddEditNoteEvent.SaveNote)
-                    },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ){
-                    Icon(imageVector = Icons.Default.Check , contentDescription = "Save" )
-                }
-
-            },
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-
-            ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .background(backgroundAnimateableColor.value)
-                    .fillMaxSize()
-                    .padding(20.dp)
-                    .padding(paddingValues)
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "bg/${noteId}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = {_,_ ->
-                            tween(durationMillis = 500)
-                        }
-                    )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    viewModel.onEvent(AddEditNoteEvent.SaveNote)
+                },
+                containerColor = MaterialTheme.colorScheme.primary
             ){
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Utils.noteColors.forEach{ color ->
-                        val colorInt = color.toArgb()
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .shadow(15.dp, CircleShape)
-                                .clip(CircleShape)
-                                .background(color)
-                                .border(
-                                    width = 3.dp,
-                                    color = if (backgroundAnimateableColor.value.toArgb() == colorInt) {
-                                        Color.Black
-                                    } else Color.Transparent,
-                                    shape = CircleShape
-                                )
-                                .clickable {
-                                    scope.launch {
-                                        backgroundAnimateableColor.animateTo(
-                                            targetValue = Color(colorInt),
-                                            animationSpec = tween(
-                                                delayMillis = 300
-                                            )
-                                        )
-                                    }
-                                    viewModel.onEvent(AddEditNoteEvent.ChangeColor(colorInt))
-                                }
-                        )
-
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                TrasnparentHintTextField(
-                    text = titleState.text,
-                    hint = titleState.hint,
-                    onValueChange = {
-                        viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
-                    },
-                    onFocusChange = {
-                        viewModel.onEvent(AddEditNoteEvent.IsFocusTitle(it))
-                    },
-                    isHintVisible = titleState.isHintVisible,
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier
-                        .sharedElement(
-                            state = rememberSharedContentState(key = "title/${noteId}"),
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            boundsTransform = {_,_ ->
-                                tween(durationMillis = 500)
-                            }
-                        )
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                TrasnparentHintTextField(
-                    text = contentState.text,
-                    hint = contentState.hint,
-                    onValueChange = {
-                        viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
-                    },
-                    onFocusChange = {
-                        viewModel.onEvent(AddEditNoteEvent.IsFocusContent(it))
-                    },
-                    isHintVisible = contentState.isHintVisible,
-                    singleLine = false,
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .sharedElement(
-                            state = rememberSharedContentState(key = "content/${noteId}"),
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            boundsTransform = {_,_ ->
-                                tween(durationMillis = 500)
-                            }
-                        )
-                )
-
+               Icon(imageVector = Icons.Default.Check , contentDescription = "Save" )
             }
+
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(backgroundAnimateableColor.value)
+                .fillMaxSize()
+                .padding(20.dp)
+                .padding(paddingValues)
+        ){
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Utils.noteColors.forEach{ color ->
+                    val colorInt = color.toArgb()
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .shadow(15.dp, CircleShape)
+                            .clip(CircleShape)
+                            .background(color)
+                            .border(
+                                width = 3.dp,
+                                color = if (backgroundAnimateableColor.value.toArgb() == colorInt) {
+                                    Color.Black
+                                } else Color.Transparent,
+                                shape = CircleShape
+                            )
+                            .clickable {
+                                scope.launch {
+                                    backgroundAnimateableColor.animateTo(
+                                        targetValue = Color(colorInt),
+                                        animationSpec = tween(
+                                            delayMillis = 300
+                                        )
+                                    )
+                                }
+                                viewModel.onEvent(AddEditNoteEvent.ChangeColor(colorInt))
+                            }
+                    )
+
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            TrasnparentHintTextField(
+                text = titleState.text,
+                hint = titleState.hint,
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                },
+                onFocusChange = {
+                    viewModel.onEvent(AddEditNoteEvent.IsFocusTitle(it))
+                },
+                isHintVisible = titleState.isHintVisible,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TrasnparentHintTextField(
+                text = contentState.text,
+                hint = contentState.hint,
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
+                },
+                onFocusChange = {
+                    viewModel.onEvent(AddEditNoteEvent.IsFocusContent(it))
+                },
+                isHintVisible = contentState.isHintVisible,
+                singleLine = false,
+                textStyle = MaterialTheme.typography.bodyLarge
+            )
 
         }
 

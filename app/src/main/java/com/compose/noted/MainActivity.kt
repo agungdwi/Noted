@@ -6,8 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
@@ -29,10 +27,8 @@ import com.compose.noted.ui.theme.NotedTheme
 import com.compose.noted.utils.Screen
 import dagger.hilt.android.AndroidEntryPoint
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     private val viewModel: SplashViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,55 +44,66 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SharedTransitionLayout {
-                        val navController = rememberNavController()
-                        NavHost(
-                            navController = navController,
-                            startDestination = Screen.NotesScree.route
-                        ) {
-                            composable(route = Screen.NotesScree.route){
-                                NoteScreen(
-                                    navigateToAdd = {
-                                        navController.navigate(Screen.AddEditNoteScreen.route)
-                                    },
-                                    navigateToEdit = { id, color ->
-                                        navController.navigate(Screen.AddEditNoteScreen.createRoute(id, color))
-                                    },
-                                    sharedTransitionScope = this@SharedTransitionLayout,
-                                    animatedVisibilityScope = this
-                                )
-                            }
-                            composable(route = Screen.AddEditNoteScreen.route,
-                                arguments = listOf(
-                                    navArgument(
-                                        name = "noteId"
-                                    ){
-                                        type = NavType.IntType
-                                        defaultValue = -1
-                                    },
-                                    navArgument(
-                                        name = "noteColor"
-                                    ) {
-                                        type = NavType.IntType
-                                        defaultValue = -1
-                                    }
-                                )
-
-                            ){
-                                val color = it.arguments?.getInt("noteColor") ?: -1
-                                val noteId = it.arguments?.getInt("noteId") ?: -1
-                                AddEditNoteScreen(
-                                    navController = navController,
-                                    noteColor = color,
-                                    noteId = noteId,
-                                    sharedTransitionScope = this@SharedTransitionLayout,
-                                    animatedVisibilityScope = this
-                                )
-                            }
-
-
-
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.NotesScree.route
+                    ) {
+                        composable(route = Screen.NotesScree.route){
+                            NoteScreen(
+                                navigateToAdd = {
+                                    navController.navigate(Screen.AddEditNoteScreen.route)
+                                },
+                                navigateToEdit = { id, color ->
+                                    navController.navigate(Screen.AddEditNoteScreen.createRoute(id, color))
+                                }
+                            )
                         }
+                        composable(route = Screen.AddEditNoteScreen.route,
+                        arguments = listOf(
+                            navArgument(
+                                name = "noteId"
+                            ){
+                                type = NavType.IntType
+                                defaultValue = -1
+                            },
+                            navArgument(
+                                name = "noteColor"
+                            ) {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            }
+                        ),
+                            enterTransition = {
+                                fadeIn(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                                fadeOut(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }
+
+                        ){
+                            val color = it.arguments?.getInt("noteColor") ?: -1
+                            AddEditNoteScreen(
+                                navController = navController,
+                                noteColor = color
+                            )
+                        }
+
+
 
                     }
 

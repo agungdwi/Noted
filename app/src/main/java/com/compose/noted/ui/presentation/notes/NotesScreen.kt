@@ -1,31 +1,41 @@
 package com.compose.noted.ui.presentation.notes
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.StickyNote2
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -37,33 +47,38 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.compose.noted.R
 import com.compose.noted.domain.model.Note
 import com.compose.noted.domain.utils.NoteOrder
+import com.compose.noted.utils.Screen
 import com.compose.noted.ui.commons.NoteEvent
 import com.compose.noted.ui.commons.NoteState
 import com.compose.noted.ui.presentation.notes.components.DummyNote
 import com.compose.noted.ui.presentation.notes.components.NoteItem
 import com.compose.noted.ui.presentation.notes.components.OrderRadio
+import com.compose.noted.ui.presentation.notes.components.StaggeredVerticalGrid
 import com.compose.noted.ui.theme.NotedTheme
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NoteScreen(
     viewModel: NotesViewModel = hiltViewModel(),
     navigateToAdd: () -> Unit,
-    navigateToEdit: (Int, Int) -> Unit,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope
+    navigateToEdit: (Int, Int) -> Unit
 ) {
 
     val state = viewModel.state.collectAsState().value
@@ -77,13 +92,10 @@ fun NoteScreen(
         onUndoClick = { viewModel.onEvent(NoteEvent.RestoreNote) },
         navigateToAdd = navigateToAdd,
         navigateToEdit = { id, color -> navigateToEdit(id, color) },
-        onQueryChange = { newQuery -> viewModel.onEvent(NoteEvent.SearchNote(newQuery)) },
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope)
+        onQueryChange = { newQuery -> viewModel.onEvent(NoteEvent.SearchNote(newQuery)) })
 
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NoteContent(
     state: NoteState,
@@ -94,9 +106,7 @@ fun NoteContent(
     onUndoClick: () -> Unit,
     navigateToAdd: () -> Unit,
     navigateToEdit: (Int, Int) -> Unit,
-    onQueryChange: (String) -> Unit,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope
+    onQueryChange: (String) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -117,7 +127,9 @@ fun NoteContent(
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)
         ) {
+
             Spacer(modifier = Modifier.height(8.dp))
+
             LazyVerticalStaggeredGrid(
                 state = staggeredGridState,
                 columns = StaggeredGridCells.Fixed(2),
@@ -150,9 +162,10 @@ fun NoteContent(
                     }
                 }
 
+
+
                 items(state.notes, key = { it.id ?: 0 }) { note ->
-                    NoteItem(
-                        note = note,
+                    NoteItem(note = note,
                         modifier = Modifier
                             .padding(4.dp)
                             .fillMaxWidth()
@@ -175,10 +188,7 @@ fun NoteContent(
                         onClick = {
                             note.id?.let { it1 -> navigateToEdit(it1, note.color) }
 
-                        },
-                        sharedTransitionScope = sharedTransitionScope,
-                        animatedVisibilityScope = animatedVisibilityScope
-                        )
+                        })
                 }
             }
         }
@@ -193,7 +203,7 @@ fun SearchBar(
     onToggleOrderSectionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SearchBar(query = query,
+    androidx.compose.material3.SearchBar(query = query,
         onQueryChange = onQueryChange,
         onSearch = {},
         active = false,
@@ -221,7 +231,7 @@ fun SearchBar(
     ) {}
 }
 
-/*@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun NoteContentPreview() {
     NotedTheme {
@@ -229,14 +239,14 @@ fun NoteContentPreview() {
         NoteContent(state = DummyNote.dummyNoteState,
             onOrderChange = {},
             query = "",
-            onToggleOrderSectionClick = { *//*TODO*//* },
+            onToggleOrderSectionClick = { /*TODO*/ },
             onDeleteClick = {},
-            onUndoClick = { *//*TODO*//* },
-            navigateToAdd = { *//*TODO*//* },
-            navigateToEdit = { _, _ -> *//*TODO*//* },
+            onUndoClick = { /*TODO*/ },
+            navigateToAdd = { /*TODO*/ },
+            navigateToEdit = { _, _ -> /*TODO*/ },
             onQueryChange = { })
     }
-}*/
+}
 
 
 
