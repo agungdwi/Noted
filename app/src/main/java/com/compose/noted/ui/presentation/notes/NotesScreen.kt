@@ -174,9 +174,6 @@ fun NoteContent(
                                 })
                         }
                     }
-
-
-
                     items(state.notes, key = { it.id ?: 0 }) { note ->
                         NoteItem(note = note,
                             modifier = Modifier
@@ -225,7 +222,7 @@ fun SearchBar(
     onToggleOrderSectionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.material3.SearchBar(query = query,
+    SearchBar(query = query,
         onQueryChange = onQueryChange,
         onSearch = {},
         active = false,

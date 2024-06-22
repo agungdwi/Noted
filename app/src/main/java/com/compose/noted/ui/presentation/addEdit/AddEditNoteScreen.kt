@@ -110,7 +110,16 @@ fun AddEditNoteScreen(
                 }
 
             },
+
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            modifier = Modifier
+                .sharedBounds(
+                    rememberSharedContentState(key = "note/$noteId"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                )
 
             ) { paddingValues ->
             Column(
@@ -119,13 +128,7 @@ fun AddEditNoteScreen(
                     .fillMaxSize()
                     .padding(20.dp)
                     .padding(paddingValues)
-                    .sharedBounds(
-                        rememberSharedContentState(key = "note/$noteId"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
-                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                    )
+
             ){
 
                 Row(modifier = Modifier
