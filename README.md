@@ -18,7 +18,7 @@ Welcome to Noted, a simple note-taking app built using Jetpack Compose. This app
 ## Features
 - Create Notes: Add new notes effortlessly with a clean and user-friendly interface.
 - Edit Notes: Modify your existing notes with ease to keep them up-to-date.
-- Delete Notes: Remove notes that are no longer needed with a simple swipe.
+- Delete Notes: Remove notes that are no longer needed with a simple button.
 - Search Functionality: Quickly find the notes you need with the integrated search feature.
 - Sort Functionality : Sorted your notes based on title, color, or date created.
 - Jetpack Compose: Built entirely with Jetpack Compose for a modern and responsive UI.
