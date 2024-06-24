@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
@@ -70,6 +71,7 @@ import com.compose.noted.utils.Screen
 import com.compose.noted.ui.commons.NoteEvent
 import com.compose.noted.ui.commons.NoteState
 import com.compose.noted.ui.presentation.notes.components.DummyNote
+import com.compose.noted.ui.presentation.notes.components.EmptyNote
 import com.compose.noted.ui.presentation.notes.components.NoteItem
 import com.compose.noted.ui.presentation.notes.components.OrderRadio
 import com.compose.noted.ui.presentation.notes.components.StaggeredVerticalGrid
@@ -81,8 +83,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NoteScreen(
     viewModel: NotesViewModel = hiltViewModel(),
-    navigateToAdd: () -> Unit,
-    navigateToEdit: (Int, Int) -> Unit,
+    navigateToAddEdit: (Int, Int) -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
@@ -96,8 +97,7 @@ fun NoteScreen(
         onToggleOrderSectionClick = { viewModel.onEvent(NoteEvent.ToggleOrderSection) },
         onDeleteClick = { note -> viewModel.onEvent(NoteEvent.DeleteNote(note)) },
         onUndoClick = { viewModel.onEvent(NoteEvent.RestoreNote) },
-        navigateToAdd = navigateToAdd,
-        navigateToEdit = { id, color -> navigateToEdit(id, color) },
+        navigateToAddEdit = { id, color -> navigateToAddEdit(id, color) },
         onQueryChange = { newQuery -> viewModel.onEvent(NoteEvent.SearchNote(newQuery)) },
         sharedTransitionScope = sharedTransitionScope,
         animatedVisibilityScope = animatedVisibilityScope
@@ -114,8 +114,7 @@ fun NoteContent(
     onToggleOrderSectionClick: () -> Unit,
     onDeleteClick: (Note) -> Unit,
     onUndoClick: () -> Unit,
-    navigateToAdd: () -> Unit,
-    navigateToEdit: (Int, Int) -> Unit,
+    navigateToAddEdit: (Int, Int) -> Unit,
     onQueryChange: (String) -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope
@@ -128,7 +127,8 @@ fun NoteContent(
         Scaffold(
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = navigateToAdd, containerColor = MaterialTheme.colorScheme.primary,
+                    onClick = {navigateToAddEdit(-1,-1)},
+                    containerColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .sharedBounds(
                             rememberSharedContentState(key = "note/${-1}"),
@@ -154,7 +154,7 @@ fun NoteContent(
                 LazyVerticalStaggeredGrid(
                     state = staggeredGridState,
                     columns = StaggeredGridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(bottom = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalItemSpacing = 4.dp
@@ -182,41 +182,61 @@ fun NoteContent(
                                 })
                         }
                     }
-                    items(state.notes, key = { it.id ?: 0 }) { note ->
-                        NoteItem(note = note,
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .fillMaxWidth()
-                                .animateItem(
-                                    placementSpec = tween(
-                                        durationMillis = 300, delayMillis = 0
-                                    )
-                                )
-                                .sharedBounds(
-                                    rememberSharedContentState(key = "note/${note.id}"),
-                                    animatedVisibilityScope = animatedVisibilityScope,
-                                    enter = fadeIn(),
-                                    exit = fadeOut(),
-                                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
-                                ), // This line adds the placement animation
-                            onDeleteClick = {
-                                onDeleteClick(note)
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "Note deleted", actionLabel = "Undo"
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        onUndoClick()
-                                    }
-                                }
-                            },
-                            onClick = {
-                                note.id?.let { it1 -> navigateToEdit(it1, note.color) }
 
-                            })
+                    items(state.notes, key = { it.id ?: 0 }) { note ->
+                        AnimatedVisibility(
+                            visible = state.notes.isNotEmpty(),
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            NoteItem(note = note,
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .fillMaxWidth()
+                                    .animateItem(
+                                        placementSpec = tween(
+                                            durationMillis = 300, delayMillis = 0
+                                        )
+                                    )
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "note/${note.id}"),
+                                        animatedVisibilityScope = animatedVisibilityScope,
+                                        enter = fadeIn(),
+                                        exit = fadeOut(),
+                                        resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds()
+                                    ), // This line adds the placement animation
+                                onDeleteClick = {
+                                    onDeleteClick(note)
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = "Note deleted", actionLabel = "Undo"
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            onUndoClick()
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    note.id?.let { it1 -> navigateToAddEdit(it1, note.color) }
+
+                                })
+
+                        }
                     }
                 }
+
+                AnimatedVisibility(
+                    visible = state.notes.isEmpty(),
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    EmptyNote(
+                        isSearchActive = state.isSearchActive,
+
+                        )
+                }
             }
+
         }
 
     }
@@ -258,27 +278,29 @@ fun SearchBar(
     ) {}
 }
 
-//@OptIn(ExperimentalSharedTransitionApi::class)
-//@Preview(showBackground = true)
-//@Composable
-//fun NoteContentPreview() {
-//    NotedTheme {
-//
-//        NoteContent(
-//            state = DummyNote.dummyNoteState,
-//            onOrderChange = {},
-//            query = "",
-//            onToggleOrderSectionClick = { /*TODO*/ },
-//            onDeleteClick = {},
-//            onUndoClick = { /*TODO*/ },
-//            navigateToAdd = { /*TODO*/ },
-//            navigateToEdit = { _, _ -> /*TODO*/ },
-//            onQueryChange = { },
-//            sharedTransitionScope = ,
-//            animatedVisibilityScope =
-//            )
-//    }
-//}
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Preview(showBackground = true)
+@Composable
+fun NoteContentPreview() {
+    NotedTheme {
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                NoteContent(
+                    state = DummyNote.dummyNoteState,
+                    onOrderChange = {},
+                    query = "",
+                    onToggleOrderSectionClick = { /*TODO*/ },
+                    onDeleteClick = {},
+                    onUndoClick = { /*TODO*/ },
+                    navigateToAddEdit = { _, _ -> /*TODO*/ },
+                    onQueryChange = { },
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this
+                )
+            }
+        }
+    }
+}
 
 
 

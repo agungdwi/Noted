@@ -69,14 +69,30 @@ class NotesViewModel @Inject constructor(private val useCase: NoteUseCase) : Vie
             }
 
             is NoteEvent.ToggleOrderSection -> {
-                _state.value = state.value.copy(
-                    isOrderSectionVisible = !state.value.isOrderSectionVisible
-                )
+                _state.update {
+                    it.copy(
+                        isOrderSectionVisible = !state.value.isOrderSectionVisible
+                    )
+                }
             }
 
             is NoteEvent.SearchNote -> {
                 viewModelScope.launch(Dispatchers.Default) {
                     _query.value = event.query
+                    if(_query.value.isBlank()){
+                        _state.update {
+                            it.copy(
+                                isSearchActive = false
+                            )
+                        }
+                    }else{
+                        _state.update {
+                            it.copy(
+                                isSearchActive = true
+                            )
+                        }
+                    }
+
                     delay(500L) // debounce delay
                     getNotes(state.value.noteOrder)
                 }

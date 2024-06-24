@@ -23,12 +23,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.compose.noted.ui.presentation.addEdit.AddEditNoteScreen
 import com.compose.noted.ui.presentation.notes.NoteScreen
 import com.compose.noted.ui.presentation.notes.NotesViewModel
 import com.compose.noted.ui.theme.NotedTheme
 import com.compose.noted.utils.Screen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -53,59 +55,21 @@ class MainActivity : ComponentActivity() {
                         val navController = rememberNavController()
                         NavHost(
                             navController = navController,
-                            startDestination = Screen.NotesScree.route
+                            startDestination = ScreenHome
                         ) {
-                            composable(route = Screen.NotesScree.route){
+                            composable<ScreenHome>{
                                 NoteScreen(
-                                    navigateToAdd = {
-                                        navController.navigate(Screen.AddEditNoteScreen.route)
-                                    },
-                                    navigateToEdit = { id, color ->
-                                        navController.navigate(Screen.AddEditNoteScreen.createRoute(id, color))
+                                    navigateToAddEdit = { id, color ->
+                                        navController.navigate(ScreenAddEdit(noteId = id, color = color))
                                     },
                                     animatedVisibilityScope = this,
                                     sharedTransitionScope = this@SharedTransitionLayout
                                 )
                             }
-                            composable(route = Screen.AddEditNoteScreen.route,
-                                arguments = listOf(
-                                    navArgument(
-                                        name = "noteId"
-                                    ){
-                                        type = NavType.IntType
-                                        defaultValue = -1
-                                    },
-                                    navArgument(
-                                        name = "noteColor"
-                                    ) {
-                                        type = NavType.IntType
-                                        defaultValue = -1
-                                    }
-                                ),
-//                                enterTransition = {
-//                                    fadeIn(
-//                                        animationSpec = tween(
-//                                            300, easing = LinearEasing
-//                                        )
-//                                    ) + slideIntoContainer(
-//                                        animationSpec = tween(300, easing = EaseIn),
-//                                        towards = AnimatedContentTransitionScope.SlideDirection.Start
-//                                    )
-//                                },
-//                                exitTransition = {
-//                                    fadeOut(
-//                                        animationSpec = tween(
-//                                            300, easing = LinearEasing
-//                                        )
-//                                    ) + slideOutOfContainer(
-//                                        animationSpec = tween(300, easing = EaseOut),
-//                                        towards = AnimatedContentTransitionScope.SlideDirection.End
-//                                    )
-//                                }
-
-                            ){
-                                val color = it.arguments?.getInt("noteColor") ?: -1
-                                val id= it.arguments?.getInt("noteId") ?: -1
+                            composable<ScreenAddEdit>{
+                                val args = it.toRoute<ScreenAddEdit>()
+                                val color = args.color
+                                val id= args.noteId
                                 AddEditNoteScreen(
                                     navController = navController,
                                     noteColor = color,
@@ -126,3 +90,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+@Serializable
+object ScreenHome
+
+@Serializable
+data class ScreenAddEdit(
+    val noteId:Int,
+    val color:Int
+)

@@ -55,9 +55,11 @@ object DummyNote {
         )
     )
 
+    val sampleEmpty = emptyList<Note>()
+
     // Creating a dummy NoteState
     val dummyNoteState = NoteState(
-        notes = sampleNotes,
+        notes = sampleEmpty,
         noteOrder = NoteOrder.Date(OrderType.Descending),
         isOrderSectionVisible = true
     )
