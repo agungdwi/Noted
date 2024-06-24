@@ -1,7 +1,5 @@
 package com.compose.noted.domain.usecase
 
-import com.compose.noted.core.data.NoteRepository
-import com.compose.noted.core.data.local.NoteEntity
 import com.compose.noted.domain.INoteRepository
 import com.compose.noted.domain.model.Note
 import com.compose.noted.domain.utils.NoteOrder

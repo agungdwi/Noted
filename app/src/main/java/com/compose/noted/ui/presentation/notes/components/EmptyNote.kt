@@ -1,18 +1,16 @@
 package com.compose.noted.ui.presentation.notes.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.StickyNote2
 import androidx.compose.material.icons.filled.SpeakerNotesOff
-import androidx.compose.material.icons.filled.StickyNote2
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.CreationExtras
 import com.compose.noted.ui.theme.NotedTheme
 
 @Composable
@@ -38,7 +35,7 @@ fun EmptyNote(
     }
 
     var icon by remember {
-        mutableStateOf(Icons.Default.StickyNote2)
+        mutableStateOf(Icons.AutoMirrored.Filled.StickyNote2)
     }
 
     if(isSearchActive){
@@ -46,7 +43,7 @@ fun EmptyNote(
         icon = Icons.Default.SpeakerNotesOff
     }else{
         text = "Make Your Activity Noted"
-        icon = Icons.Default.StickyNote2
+        icon = Icons.AutoMirrored.Filled.StickyNote2
 
     }
 

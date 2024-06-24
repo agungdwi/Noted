@@ -2,7 +2,6 @@ package com.compose.noted.core.data
 
 import com.compose.noted.core.DataMapper
 import com.compose.noted.core.data.local.NoteDao
-import com.compose.noted.core.data.local.NoteEntity
 import com.compose.noted.domain.INoteRepository
 import com.compose.noted.domain.model.Note
 import kotlinx.coroutines.flow.Flow

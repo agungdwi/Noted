@@ -1,6 +1,5 @@
 package com.compose.noted.domain
 
-import com.compose.noted.core.data.local.NoteEntity
 import com.compose.noted.domain.model.Note
 import kotlinx.coroutines.flow.Flow
 
